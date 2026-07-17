@@ -4,27 +4,59 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  imageRepository: nodeapp
+  dockerRegistryServiceConnection: 'ACRConnection'
+  containerRegistry: 'youracrname.azurecr.io'
+  tag: '$(Build.BuildId)'
+
 stages:
 
+# ==========================
+# BUILD STAGE
+# ==========================
 - stage: Build
+  displayName: Build Stage
 
   jobs:
-
   - job: BuildJob
 
     steps:
-
     - checkout: self
 
     - task: NodeTool@0
       inputs:
         versionSpec: '18.x'
 
-    - script: |
-        npm install
+    - script: npm install
       displayName: Install Dependencies
 
     - script: |
-        npm test || echo "No tests available"
+        npm test || echo "No tests found"
       displayName: Run Tests
+
+# ==========================
+# PACKAGE STAGE
+# ==========================
+- stage: Package
+
+  dependsOn: Build
+
+  jobs:
+
+  - job: DockerBuild
+
+    steps:
+
+    - task: Docker@2
+      displayName: Build and Push Docker Image
+
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: Dockerfile
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+          latest
 
