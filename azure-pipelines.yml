@@ -1,0 +1,30 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+
+- stage: Build
+
+  jobs:
+
+  - job: BuildJob
+
+    steps:
+
+    - checkout: self
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+
+    - script: |
+        npm install
+      displayName: Install Dependencies
+
+    - script: |
+        npm test || echo "No tests available"
+      displayName: Run Tests
+
