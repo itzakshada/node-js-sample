@@ -10,11 +10,11 @@ variables:
   containerRegistry: 'akshada01.azurecr.io'
   tag: '$(Build.BuildId)'
 
+stages:
+
 # =====================================
 # BUILD STAGE
 # =====================================
-stages:
-
 - stage: Build
   displayName: Build Stage
 
@@ -23,12 +23,13 @@ stages:
     displayName: Build Application
 
     steps:
+
     - checkout: self
 
     - task: NodeTool@0
       inputs:
         versionSpec: '18.x'
-      displayName: Install Node
+      displayName: Install Node.js
 
     - script: |
         npm install
@@ -36,19 +37,18 @@ stages:
 
     - task: CopyFiles@2
       displayName: Copy Files
-
       inputs:
-      SourceFolder: '$(Build.SourcesDirectory)'
-      Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+        SourceFolder: '$(Build.SourcesDirectory)'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
     - task: PublishBuildArtifacts@1
       displayName: Publish Build Artifact
-
       inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-      ArtifactName: 'nodeapp'
-      publishLocation: 'Container'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'nodeapp'
+        publishLocation: 'Container'
+
 # =====================================
 # TEST STAGE
 # =====================================
@@ -61,6 +61,7 @@ stages:
     displayName: Run Tests
 
     steps:
+
     - checkout: self
 
     - task: NodeTool@0
@@ -76,7 +77,7 @@ stages:
 # PACKAGE STAGE
 # =====================================
 - stage: Package
-  displayName: Package Stage
+  displayName: Docker Package Stage
   dependsOn: Test
 
   jobs:
@@ -84,11 +85,11 @@ stages:
     displayName: Build and Push Docker Image
 
     steps:
+
     - checkout: self
 
     - task: Docker@2
-      displayName: Build and Push Image
-
+      displayName: Build and Push Docker Image
       inputs:
         command: buildAndPush
         repository: $(imageRepository)
@@ -108,8 +109,7 @@ stages:
 
   jobs:
   - deployment: DeployWebApp
-    displayName: Deploy to Azure App Service
-
+    displayName: Deploy to Azure Web App
     environment: Production
 
     strategy:
@@ -122,5 +122,5 @@ stages:
 
             inputs:
               azureSubscription: 'AzureConnection'
-              appName: 'akshada-nodeapp123'
+              appName: 'akshada-nodeapp'
               containers: 'akshada01.azurecr.io/nodeapp:latest'
