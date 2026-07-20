@@ -122,5 +122,5 @@ stages:
 
             inputs:
               azureSubscription: 'AzureConnection'
-              appName: 'akshada-nodeapp'
+              appName: 'akshada-nodeapp123'
               containers: 'akshada01.azurecr.io/nodeapp:latest'
