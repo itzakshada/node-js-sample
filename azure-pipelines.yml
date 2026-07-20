@@ -19,22 +19,51 @@ stages:
   displayName: Build Stage
 
   jobs:
-  - job: BuildJob
+  - job: Build
+
+    pool:
+      vmImage: ubuntu-latest
 
     steps:
+
     - checkout: self
 
     - task: NodeTool@0
       inputs:
         versionSpec: '18.x'
 
-    - script: npm install
+    - script: |
+        npm install
       displayName: Install Dependencies
 
     - script: |
-        npm test || echo "No tests found"
-      displayName: Run Tests
+        npm run build
+      displayName: Build Application
+- stage: Test
+  displayName: Test Stage
 
+  dependsOn: Build
+
+  jobs:
+
+  - job: Test
+
+    pool:
+      vmImage: ubuntu-latest
+
+    steps:
+
+    - checkout: self
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'
+
+    - script: |
+        npm install
+    - script: |
+        npm test
+      displayName: Run Unit Tests
 # ==========================
 # PACKAGE STAGE
 # ==========================
