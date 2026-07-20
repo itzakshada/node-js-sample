@@ -1,76 +1,142 @@
 *{
     margin:0;
-    padding:0;*    box-sizing:border-box;
-    fon*-family:'Segoe UI',sans-serif;
+    padding:0;
+  * box-sizing:border-box;
+    font-f*mily:'Segoe UI',sans-serif;
 }
 
-*ody{
-    background:#0f172a;
-    c*lor:white;
+body{
+    background:#f8fbff;
+    color:#222;
 }
+
+/* Navigation */
 
 nav{
-    display:fle*;
-    justify-content:space-betwee*;
+    display*flex*
+    justify-content:space-between*
     align-items:center;
-    padd*ng:20px 60px;
-    background:#1118*7;
+    paddi*g:25px 8%;
+    background:white;
+}*
+.logo{
+    font-size:24px;
+    fo*t-weight:600;
+    color:#0078d4;
+}*
+.menu{
+    display:flex;
+    gap:*5px;
 }
 
-nav ul{
-    display:flex;
-  * list-style:none;
-    gap:20px;
+.menu a{
+    text-decoration:none;
+    color:#333;
+    font-weight:500;
 }
-*nav a{
-    text*decoration:none;
-    color:white;
-*
+
+/* Hero */
 
 .hero{
-    text-align:center;
-  * padding:100px 20px;
+    min-height:80vh;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 8%;
+    background:
+    linear-gradient(
+        135deg,
+        #f8fbff 0%,
+        #eff7ff 50%,
+        #e3f2ff 100%
+    );
 }
 
-.hero h*{
-    font-size:4rem;
-    margin*bottom:10px;
+.hero-content{
+    max-width:600px;
+}
+
+.badge{
+    background:#dcefff;
+    color:#0078d4;
+    padding:8px 18px;
+    border-radius:25px;
+    font-size:14px;
+    font-weight:600;
+}
+
+.hero h1{
+    font-size:64px;
+    line-height:1.1;
+    margin:25px 0;
+}
+
+.hero h1 span{
+    color:#0078d4;
 }
 
 .hero p{
-    color*#94a3b8;
-*   margin-bottom:20px;
+    color:#555;
+    font-size:18px;
+    line-height:1.7;
+    margin-bottom:35px;
 }
 
-.hero bu*ton{
+.buttons{
+    display:flex;
+    gap:15px;
+}
+
+.primary{
     background:#0078d4;
-    c*lor:white;
-    border*none;
-    padding*12px 30px;
+    color:white;
+    border:none;
+    padding:14px 32px;
     border-radius:8px;
-*   cursor:pointer;
+    cursor:pointer;
 }
 
-*dashboard{
+.secondary{
+    background:white;
+    border:1px solid #ddd;
+    padding:14px 32px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.hero-image{
+    font-size:220px;
+    color:#0078d4;
+    opacity:.15;
+}
+
+/* Services */
+
+.services{
     display:grid;
-    g*id-template-columns:repeat(auto-fi*,minmax(250px,1fr));
-    gap:20px;*    padding:40px;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+    padding:80px 8%;
 }
 
-*card*
-    background:#1e293b;
-    paddi*g:25px;
-    border-radius:15px;
-  * transition:.3s;
+.card{
+    background:white;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 5px 20px rgba(0,0,0,.06);
+    transition:.3s;
 }
 
 .card:hover{
- *  transform:translateY(-8px);
-    *ox-shadow*0 10px 25px rgba(0,120,*12,.3);
+    transform:translateY(-8px);
 }
 
 .card h3{
-    margin*bottom:10px;
-    color:#38bdf8;
+    color:#0078d4;
+    margin-bottom:12px;
 }
-*
+
+.card p{
+    color:#666;
+    line-height:1.6;
+}
