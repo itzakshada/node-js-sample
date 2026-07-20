@@ -34,6 +34,21 @@ stages:
         npm install
       displayName: Install Dependencies
 
+    - task: CopyFiles@2
+      displayName: Copy Files
+
+      inputs:
+      SourceFolder: '$(Build.SourcesDirectory)'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      displayName: Publish Build Artifact
+
+      inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'nodeapp'
+      publishLocation: 'Container'
 # =====================================
 # TEST STAGE
 # =====================================
