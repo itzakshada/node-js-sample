@@ -25,7 +25,7 @@ spec:
 
         image: akshada01.azurecr.io/nodeapp:latest
 
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
 
         ports:
         - containerPort: 5000
