@@ -133,7 +133,6 @@ stages:
   - job: Deploy
 
     steps:
-
     - checkout: self
 
     - script: |
