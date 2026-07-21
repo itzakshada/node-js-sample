@@ -8,7 +8,7 @@ variables:
   imageRepository: nodeapp
   dockerRegistryServiceConnection: 'ACRConnection'
   containerRegistry: 'akshada01.azurecr.io'
-  tag: '$(Build.BuildId)'
+  tag:  '$(Build.BuildId)'
 
 stages:
 
@@ -96,8 +96,8 @@ stages:
         dockerfile: Dockerfile
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
-          $(tag)
-          latest
+           $(Build.BuildId)
+           latest
 
 # =====================================
 # DEPLOY STAGE
@@ -124,3 +124,19 @@ stages:
               azureSubscription: 'AzureConnection'
               appName: 'akshada-nodeapp123'
               containers: 'akshada01.azurecr.io/nodeapp:latest'
+- stage: DeployK8s
+  displayName: Deploy To Minikube
+  dependsOn: Package
+  condition: succeeded()
+
+  jobs:
+  - job: Deploy
+
+    steps:
+
+    - checkout: self
+
+    - script: |
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+      displayName: Deploy to Kubernetes
