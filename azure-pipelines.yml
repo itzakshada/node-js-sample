@@ -1,49 +1,47 @@
 trigger:
-- main
+  - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 variables:
-  imageRepository: nodeapp
+  imageRepository: 'nodeapp'
   dockerRegistryServiceConnection: 'ACRConnection'
   containerRegistry: 'akshada01.azurecr.io'
-  tag:  '$(Build.BuildId)'
-
-stages:
+  tag: '$(Build.BuildId)'
 
 # =====================================
 # BUILD STAGE
 # =====================================
+stages:
 - stage: Build
-  displayName: Build Stage
+  displayName: 'Build Stage'
 
   jobs:
   - job: BuildJob
-    displayName: Build Application
+    displayName: 'Build Application'
 
     steps:
-
     - checkout: self
 
     - task: NodeTool@0
+      displayName: 'Install Node.js'
       inputs:
         versionSpec: '18.x'
-      displayName: Install Node.js
 
     - script: |
         npm install
-      displayName: Install Dependencies
+      displayName: 'Install Dependencies'
 
     - task: CopyFiles@2
-      displayName: Copy Files
+      displayName: 'Copy Files'
       inputs:
         SourceFolder: '$(Build.SourcesDirectory)'
         Contents: '**'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
     - task: PublishBuildArtifacts@1
-      displayName: Publish Build Artifact
+      displayName: 'Publish Build Artifact'
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'nodeapp'
@@ -53,89 +51,93 @@ stages:
 # TEST STAGE
 # =====================================
 - stage: Test
-  displayName: Test Stage
+  displayName: 'Test Stage'
   dependsOn: Build
 
   jobs:
   - job: TestJob
-    displayName: Run Tests
+    displayName: 'Run Tests'
 
     steps:
-
     - checkout: self
 
     - task: NodeTool@0
+      displayName: 'Install Node.js'
       inputs:
         versionSpec: '18.x'
 
     - script: |
         npm install
         npm test || echo "No tests found"
-      displayName: Execute Tests
+      displayName: 'Execute Tests'
 
 # =====================================
 # PACKAGE STAGE
 # =====================================
 - stage: Package
-  displayName: Docker Package Stage
+  displayName: 'Docker Package Stage'
   dependsOn: Test
 
   jobs:
   - job: DockerBuildPush
-    displayName: Build and Push Docker Image
+    displayName: 'Build and Push Docker Image'
 
     steps:
-
     - checkout: self
 
     - task: Docker@2
-      displayName: Build and Push Docker Image
+      displayName: 'Build and Push Docker Image'
       inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: Dockerfile
-        containerRegistry: $(dockerRegistryServiceConnection)
+        command: 'buildAndPush'
+        repository: '$(imageRepository)'
+        dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+        containerRegistry: '$(dockerRegistryServiceConnection)'
         tags: |
-           $(Build.BuildId)
-           latest
+          $(Build.BuildId)
+          latest
 
 # =====================================
-# DEPLOY STAGE
+# DEPLOY TO AZURE WEB APP
 # =====================================
 - stage: Deploy
-  displayName: Deploy Stage
+  displayName: 'Deploy Stage'
   dependsOn: Package
   condition: succeeded()
 
   jobs:
   - deployment: DeployWebApp
-    displayName: Deploy to Azure Web App
-    environment: Production
+    displayName: 'Deploy to Azure Web App'
+    environment: 'Production'
 
     strategy:
       runOnce:
         deploy:
           steps:
-
           - task: AzureWebAppContainer@1
-            displayName: Deploy Container
+            displayName: 'Deploy Container'
 
             inputs:
               azureSubscription: 'AzureConnection'
               appName: 'akshada-nodeapp123'
               containers: 'akshada01.azurecr.io/nodeapp:latest'
+
+# =====================================
+# DEPLOY TO KUBERNETES
+# =====================================
 - stage: DeployK8s
-  displayName: Deploy To Minikube
+  displayName: 'Deploy To Kubernetes'
   dependsOn: Package
   condition: succeeded()
 
   jobs:
   - job: Deploy
+    displayName: 'Deploy to Kubernetes'
 
     steps:
     - checkout: self
 
     - script: |
+        kubectl get nodes
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
-      displayName: Deploy to Kubernetes
+      displayName: 'Deploy to Kubernetes'
