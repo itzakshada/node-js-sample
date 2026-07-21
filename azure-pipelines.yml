@@ -11,6 +11,7 @@ variables:
   tag: '$(Build.BuildId)'
 
 stages:
+
 # =====================================
 # BUILD STAGE
 # =====================================
@@ -47,6 +48,7 @@ stages:
         ArtifactName: 'nodeapp'
         publishLocation: 'Container'
 
+
 # =====================================
 # TEST STAGE
 # =====================================
@@ -70,6 +72,7 @@ stages:
         npm install
         npm test || echo "No tests found"
       displayName: 'Execute Tests'
+
 
 # =====================================
 # PACKAGE STAGE
@@ -96,16 +99,17 @@ stages:
           $(Build.BuildId)
           latest
 
+
 # =====================================
 # DEPLOY TO AZURE WEB APP
 # =====================================
-- stage: Deploy
-  displayName: 'Deploy Stage'
+- stage: DeployWebApp
+  displayName: 'Deploy To Azure Web App'
   dependsOn: Package
   condition: succeeded()
 
   jobs:
-  - deployment: DeployWebApp
+  - deployment: DeployWebAppJob
     displayName: 'Deploy to Azure Web App'
     environment: 'Production'
 
@@ -114,11 +118,12 @@ stages:
         deploy:
           steps:
           - task: AzureWebAppContainer@1
-            displayName: 'Deploy Container'
+            displayName: 'Deploy Container to Azure Web App'
             inputs:
               azureSubscription: 'AzureConnection'
               appName: 'akshada-nodeapp123'
-              containers: 'akshada01.azurecr.io/nodeapp:latest'
+              containers: 'akshada01.azurecr.io/nodeapp:$(Build.BuildId)'
+
 
 # =====================================
 # DEPLOY TO KUBERNETES
@@ -130,12 +135,14 @@ stages:
 
   jobs:
   - job: DeployKubernetes
-    displayName: 'Deploy to Kubernetes'
+    displayName: 'Deploy to Minikube Kubernetes'
 
     steps:
     - checkout: self
 
     - script: |
+        export KUBECONFIG=/home/azureuser/.kube/config
+
         echo "Checking Kubernetes configuration..."
         kubectl version --client
         kubectl config current-context
@@ -143,7 +150,20 @@ stages:
       displayName: 'Verify Kubernetes Cluster'
 
     - script: |
-        echo "Deploying application to Kubernetes..."
+        export KUBECONFIG=/home/azureuser/.kube/config
+
+        echo "Applying Kubernetes manifests..."
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
+
+        echo "Updating Kubernetes deployment image to current build..."
+        kubectl set image deployment/nodeapp-deployment \
+          nodeapp=akshada01.azurecr.io/nodeapp:$(Build.BuildId)
+
+        echo "Waiting for Kubernetes rollout..."
+        kubectl rollout status deployment/nodeapp-deployment
+
+        echo "Current Kubernetes deployed image:"
+        kubectl get deployment nodeapp-deployment -o jsonpath='{.spec.template.spec.containers[0].image}'
+        echo ""
       displayName: 'Deploy to Kubernetes'
