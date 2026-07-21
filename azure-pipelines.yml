@@ -137,6 +137,9 @@ stages:
     - checkout: self
 
     - script: |
+        kubectl config current-context
+        kubectl get nodes
+      displayName: Verify Cluster
         kubectl get nodes
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml
